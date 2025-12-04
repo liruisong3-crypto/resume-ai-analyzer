@@ -1,0 +1,35 @@
+org: your-org
+app: resume-analyzer
+service: resume-analysis-api
+
+provider:
+  name: aliyun
+  runtime: python3.9
+  region: cn-hangzhou
+  credentials: ~/.aliyun/credentials
+
+functions:
+  api:
+    handler: src.app.handler
+    memorySize: 2048
+    timeout: 30
+    environment:
+      REDIS_HOST: ${env:REDIS_HOST}
+      REDIS_PORT: ${env:REDIS_PORT}
+      REDIS_PASSWORD: ${env:REDIS_PASSWORD}
+    events:
+      - http:
+          path: /
+          method: ANY
+      - http:
+          path: /{proxy+}
+          method: ANY
+
+plugins:
+  - serverless-aliyun-function-compute
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    layer: true
+    usePoetry: false
